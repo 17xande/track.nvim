@@ -89,7 +89,7 @@ end
 
 --@param key string
 --@param typed string
-function M.on_key(key, typed)
+function M.on_key(_, typed)
 	if not typed then
 		return
 	end
@@ -97,6 +97,10 @@ function M.on_key(key, typed)
 	local mode = vim.api.nvim_get_mode().mode
 	if mode == "i" then
 		return
+	end
+
+	if string.sub(typed, 1, 2) == "\x80\xfd" then
+		typed = "🖱️"
 	end
 
 	local count = keylog_state.key_counts[typed] or 0
