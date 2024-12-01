@@ -8,7 +8,7 @@ M.config = {
 	enabled = true,
 	max_tracking = 70,
 	window = {
-		width = 0.25,
+		width = 0.15,
 		position = "right",
 	},
 }
@@ -35,13 +35,9 @@ function M.create_sidebar()
 
 	-- Create a floating window
 	M.sidebar_win = vim.api.nvim_open_win(M.sidebar_buf, false, {
-		relative = "editor",
 		width = width,
-		height = lines,
-		col = columns - width,
-		row = 0,
+		split = "right",
 		style = "minimal",
-		border = "none",
 	})
 
 	-- Set some options for the window
@@ -101,6 +97,8 @@ function M.on_key(_, typed)
 
 	if string.sub(typed, 1, 2) == "\x80\xfd" then
 		typed = "🖱️"
+	elseif string.sub(typed, 1, 1) == "\x80" then
+		typed = string.sub(typed, 2)
 	end
 
 	local count = keylog_state.key_counts[typed] or 0
