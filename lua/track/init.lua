@@ -5,7 +5,7 @@ M.sidebar_buf = nil
 M.sidebar_win = nil
 
 M.config = {
-	enabled = true,
+	enabled = false,
 	max_tracking = 70,
 	window = {
 		width = 0.15,
@@ -91,7 +91,7 @@ function M.on_key(_, typed)
 	end
 
 	local mode = vim.api.nvim_get_mode().mode
-	if mode == "i" then
+	if mode == "i" or mode == "c" then
 		return
 	end
 
@@ -109,6 +109,18 @@ end
 
 -- Setup autocommand to track normal mode commands
 function M.setup()
+	vim.api.nvim_create_user_command("TrackToggle", function()
+		if M.config.enabled then
+			M.config.enabled = false
+			if M.sidebar_win and vim.api.nvim_win_is_valid(M.sidebar_win) then
+				vim.api.nvim_win_close(M.sidebar_win, true)
+			end
+		else
+			M.config.enabled = true
+			M.setup()
+		end
+	end, {})
+
 	if not M.config.enabled then
 		return
 	end
@@ -116,6 +128,15 @@ function M.setup()
 	M.create_sidebar()
 
 	vim.on_key(M.on_key, nil, {})
+
+	-- automatically close the sidebar when quitting
+	vim.api.nvim_create_autocmd("QuitPre", {
+		callback = function()
+			if M.sidebar_win and vim.api.nvim_win_is_valid(M.sidebar_win) then
+				vim.api.nvim_win_close(M.sidebar_win, true)
+			end
+		end,
+	})
 end
 
 return M
